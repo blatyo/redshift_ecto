@@ -195,7 +195,7 @@ if Code.ensure_loaded?(Postgrex) do
        ], exprs}
     end
 
-    defp from(%{from: from} = query, sources) do
+    defp from(%{from: %Ecto.Query.FromExpr{source: from}} = query, sources) do
       {from, name} = get_source(query, sources, 0, from)
       [" FROM ", from, " AS " | name]
     end
@@ -546,15 +546,15 @@ if Code.ensure_loaded?(Postgrex) do
     defp create_names(prefix, sources, pos, limit) when pos < limit do
       current =
         case elem(sources, pos) do
-          {table, schema, _alias} ->
-            name = [create_alias(table) | Integer.to_string(pos)]
-            {quote_table(prefix, table), name, schema}
-
           {:fragment, _, _} ->
             {nil, [?f | Integer.to_string(pos)], nil}
 
           %Ecto.SubQuery{} ->
             {nil, [?s | Integer.to_string(pos)], nil}
+
+          {table, schema, _alias} ->
+            name = [create_alias(table) | Integer.to_string(pos)]
+            {quote_table(prefix, table), name, schema}
         end
 
       [current | create_names(prefix, sources, pos + 1, limit)]
