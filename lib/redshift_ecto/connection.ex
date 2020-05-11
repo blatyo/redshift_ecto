@@ -546,15 +546,15 @@ if Code.ensure_loaded?(Postgrex) do
     defp create_names(prefix, sources, pos, limit) when pos < limit do
       current =
         case elem(sources, pos) do
-          {table, schema, _alias} ->
-            name = [create_alias(table) | Integer.to_string(pos)]
-            {quote_table(prefix, table), name, schema}
-
           {:fragment, _, _} ->
             {nil, [?f | Integer.to_string(pos)], nil}
 
           %Ecto.SubQuery{} ->
             {nil, [?s | Integer.to_string(pos)], nil}
+
+          {table, schema, _alias} ->
+            name = [create_alias(table) | Integer.to_string(pos)]
+            {quote_table(prefix, table), name, schema}
         end
 
       [current | create_names(prefix, sources, pos + 1, limit)]
