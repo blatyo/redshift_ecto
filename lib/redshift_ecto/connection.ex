@@ -195,7 +195,7 @@ if Code.ensure_loaded?(Postgrex) do
        ], exprs}
     end
 
-    defp from(%{from: from} = query, sources) do
+    defp from(%{from: %Ecto.Query.FromExpr{source: from}} = query, sources) do
       {from, name} = get_source(query, sources, 0, from)
       [" FROM ", from, " AS " | name]
     end
